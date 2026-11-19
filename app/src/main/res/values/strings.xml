@@ -1,0 +1,73 @@
+<resources>
+    <string name="app_name">Liste de Contacts</string>
+    <string name="title_contact_list">Mes Contacts</string>
+    <string name="title_contact_detail">Détails du Contact</string>
+    <string name="title_add_contact">Nouveau Contact</string>
+    <string name="title_carte">Localisation du Contact</string>
+    <string name="title_parametres">Paramètres</string>
+    <string name="subtitle_contact_count">%1$d contacts enregistrés</string>
+
+    <!-- Search -->
+    <string name="hint_search">Rechercher un contact (nom, prénom, tél)...</string>
+    <string name="msg_no_search_results">Aucun contact ne correspond à la recherche</string>
+
+    <!-- Contact Form Labels -->
+    <string name="label_nom">Nom</string>
+    <string name="label_prenom">Prénom</string>
+    <string name="label_telephone">Numéro de téléphone</string>
+    <string name="label_email">Adresse e-mail</string>
+    <string name="label_latitude">Latitude (-90 à 90)</string>
+    <string name="label_longitude">Longitude (-180 à 180)</string>
+
+    <!-- Hints -->
+    <string name="hint_nom">Entrez le nom</string>
+    <string name="hint_prenom">Entrez le prénom</string>
+    <string name="hint_telephone">Entrez le numéro de téléphone</string>
+    <string name="hint_email">Entrez l\'adresse e-mail</string>
+    <string name="hint_latitude">ex: 48.8566</string>
+    <string name="hint_longitude">ex: 2.3522</string>
+
+    <!-- Buttons -->
+    <string name="btn_call">Appeler</string>
+    <string name="btn_email">Envoyer un e-mail</string>
+    <string name="btn_gallery">Galerie</string>
+    <string name="btn_camera">Appareil photo</string>
+    <string name="btn_save">Enregistrer</string>
+    <string name="btn_cancel">Annuler</string>
+    <string name="btn_delete">Supprimer</string>
+    <string name="btn_change_photo">Changer la photo</string>
+    <string name="btn_view_map">Voir sur la carte</string>
+
+    <!-- Dialogs -->
+    <string name="dialog_delete_title">Supprimer le contact</string>
+    <string name="dialog_delete_message">Voulez-vous vraiment supprimer ce contact ?</string>
+    <string name="dialog_yes">Oui, supprimer</string>
+    <string name="dialog_no">Annuler</string>
+
+    <!-- Validation and Messages -->
+    <string name="error_field_required">Ce champ est obligatoire</string>
+    <string name="error_invalid_email">Adresse e-mail invalide</string>
+    <string name="error_invalid_phone">Numéro de téléphone invalide</string>
+    <string name="error_invalid_latitude">La latitude doit être entre -90 et 90</string>
+    <string name="error_invalid_longitude">La longitude doit être entre -180 et 180</string>
+    <string name="error_no_dialer_app">Aucune application de téléphonie disponible</string>
+    <string name="error_no_email_app">Aucune application de messagerie disponible</string>
+    <string name="error_no_camera">Appareil photo indisponible</string>
+    <string name="error_camera_permission_denied">Permission d\'accès à l\'appareil photo refusée</string>
+    <string name="msg_contact_added">Contact ajouté avec succès</string>
+    <string name="msg_contact_updated">Contact mis à jour avec succès</string>
+    <string name="msg_contact_deleted">Contact supprimé avec succès</string>
+    <string name="msg_changes_cancelled">Modifications annulées</string>
+    <string name="msg_photo_updated">Photo mise à jour</string>
+    <string name="msg_photo_cancelled">Sélection de la photo annulée</string>
+    <string name="msg_no_contacts">Aucun contact disponible</string>
+    <string name="msg_no_gps_coordinates">Coordonnées GPS absentes ou invalides pour ce contact</string>
+    <string name="msg_empty_phone">Le numéro de téléphone est vide</string>
+
+    <!-- Content Descriptions -->
+    <string name="cd_contact_photo">Photo du contact</string>
+    <string name="cd_back_button">Retour</string>
+    <string name="cd_add_contact">Ajouter un contact</string>
+    <string name="cd_call_contact">Appeler le contact</string>
+    <string name="cd_settings">Paramètres</string>
+</resources>
