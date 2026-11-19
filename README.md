@@ -1,33 +1,41 @@
-# 📱 Application Liste de Contacts (TP Android V3)
+# 📱 Application Liste de Contacts (TP Android V4)
 
 [![Kotlin](https://img.shields.io/badge/Language-Kotlin-purple.svg)](https://kotlinlang.org/)
 [![Android SDK](https://img.shields.io/badge/SDK-24%2B-green.svg)](https://developer.android.com/)
 [![Material Design 3](https://img.shields.io/badge/Design-Material%203-blue.svg)](https://m3.material.io/)
+[![SQLite](https://img.shields.io/badge/Storage-SQLite-lightgrey.svg)](https://developer.android.com/reference/android/database/sqlite/package-summary)
 [![Google Maps SDK](https://img.shields.io/badge/Maps-SDK-red.svg)](https://developers.google.com/maps)
 
-Application Android native développée en **Kotlin** avec des **interfaces XML**, créée dans le cadre du **TP Android — Contacts V3**. Cette version fait évoluer l'application V2 vers une architecture moderne à **activité unique et fragments dynamiques**, avec une **RecyclerView filtrable** et l'**intégration de Google Maps SDK** pour l'affichage cartographique des coordonnées GPS des contacts.
+Application Android native développée en **Kotlin** avec des **interfaces XML**, créée dans le cadre du **TP Android — Contacts V4**. Cette version fait évoluer l'application V3 en ajoutant la **persistance locale via SQLite** (`contacts.db`), un écran de **préférences utilisateur** avec `SharedPreferences`, et une gestion dynamique complète du **CRUD**.
 
 ---
 
-## 🚀 Nouvelles Fonctionnalités & Architecture (V3)
+## 🚀 Nouvelles Fonctionnalités & Architecture (V4)
 
-### 1. 🏛️ Architecture à Activité Unique & Fragments Dynamiques
-- **`MainActivity` unique** : Héberge les différents écrans au sein d'un `FragmentContainerView`.
-- **Navigation dynamique** : Utilisation du `FragmentManager` avec `replace()`, `addToBackStack()` et synchronisation automatique du titre du `Toolbar` et de la flèche de retour.
-- **`ContactViewModel` partagé** : Modèle de vue partagé au niveau de l'activité (`by activityViewModels()`) garantissant la persistance des données lors de la rotation de l'écran et la communication fluide entre fragments.
+### 1. 💾 Persistance des Données avec SQLite (`contacts.db`)
+- **API Native SQLite** : Utilisation de `SQLiteOpenHelper`, `SQLiteDatabase`, `ContentValues` et `Cursor` (sans framework Room).
+- **Architecture de données (`com.example.contactlist.data`)** :
+  - **`ContactContract`** : Regroupe le nom de la table `contacts` et l'ensemble des noms de colonnes (`_id`, `nom`, `prenom`, `telephone`, `email`, `photo_uri`, `latitude`, `longitude`). Aucun nom de colonne n'est écrit en dur dans le code.
+  - **`ContactDbHelper`** : Singleton d'accès à la base de données (`contacts.db`). Crée la table dans `onCreate` et y insère 5 contacts de démonstration au premier lancement.
+  - **`ContactDao`** : Seule classe contenant les requêtes SQL paramétrées (`insert`, `update`, `delete`, `getAll`, `getById`, `search`).
+- **Sécurité & Requêtes Paramétrées** : Toutes les valeurs variables utilisent des arguments `?` (`selectionArgs`) pour bloquer les injections SQL.
+- **Accès Asynchrone (Coroutines)** : Toutes les opérations de base de données s'exécutent hors du thread principal via `viewModelScope` et `withContext(Dispatchers.IO)`.
+- **Tri Insensible à la Casse** : Les contacts sont ordonnés par nom puis prénom via `COLLATE NOCASE`.
 
-### 2. 📜 Listes avec `RecyclerView` & Filtrage en Temps Réel
-- **Remplacement de la `ListView`** : Utilisation d'une `RecyclerView` personnalisée avec `ContactAdapter` et le pattern `ViewHolder`.
-- **Recherche réactive** : Champ de recherche `TextInputEditText` au-dessus de la liste filtrant de manière fluide au fur et à mesure de la saisie (`doOnTextChanged`).
-- **Filtrage multicritère & insensible à la casse** : La recherche s'effectue sur le nom, le prénom et le numéro de téléphone.
-- **Sécurité d'indexation** : L'ouverture de la fiche détaillée s'appuie sur l'identifiant unique (`id`) du contact et non sur sa position dans la liste filtrée, éliminant tout risque d'erreur d'indice.
-- **Gestion des états vides** : Affichage de messages distincts selon que la liste globale est vide ou qu'aucun résultat ne correspond à la recherche.
+### 2. ⚙️ Écran de Préférences Utilisateur (`SharedPreferences`)
+- **`ParametresFragment`** : Hérite de `PreferenceFragmentCompat` et accessible depuis l'icône de paramètres dans la barre d'application.
+- **3 Préférences Personnalisables** :
+  1. **Taille de police (`taille_police`)** : Petite (14 sp), Moyenne (16 sp), Grande (20 sp).
+  2. **Couleur préférée du texte (`couleur_preferee`)** : Noir (`#212121`), Bleu (`#1565C0`), Vert (`#2E7D32`), Rouge (`#C62828`), Violet (`#6A1B9A`).
+  3. **Appel depuis la liste (`appel_depuis_liste`)** : Interrupteur (Switch) affichant ou masquant un bouton d'appel direct sur chaque ligne de la `RecyclerView`.
+- **`PreferencesManager`** : Classe centralisant la lecture et la conversion des préférences.
+- **Application Immédiate** : Les réglages sont relus dans `onResume()` et appliqués directement à l'interface sans nécessiter de redémarrage de l'application.
 
-### 3. 🗺️ Coordonnées GPS & Intégration Google Maps
-- **Extension du modèle `Contact`** : Prise en charge des propriétés optionnelles `latitude` (Double?) et `longitude` (Double?).
-- **Saisie & Validation des coordonnées** : Formulaire dans `DetailContactFragment` autorisant uniquement des latitudes valides (de -90.0 à 90.0) et des longitudes valides (de -180.0 à 180.0).
-- **`CarteContactFragment`** : Intégration de `SupportMapFragment` (Google Maps SDK). La carte se centre automatiquement sur la position du contact à un niveau de zoom approprié et dépose un marqueur interactif à son nom.
-- **Gestion des cas limites GPS** : Si les coordonnées sont absentes ou invalides, l'application affiche un écran explicite au lieu de faire planter la carte.
+### 3. ➕ Opérations CRUD Complètes
+- **Create (Ajout)** : Bouton flottant « `+` » (FAB) dans la liste ouvrant `DetailContactFragment` en mode création.
+- **Read (Lecture)** : Chargement persistant depuis la base SQLite à chaque affichage.
+- **Update (Modification)** : Enregistrement des modifications (informations, photo, coordonnées GPS) mettant à jour la ligne SQLite correspondante.
+- **Delete (Suppression)** : Bouton « Supprimer » dans le détail demandant une confirmation (`AlertDialog`) puis supprimant le contact de la base SQLite.
 
 ---
 
@@ -38,22 +46,19 @@ Afin de respecter la règle de non-publication des clés privées sur GitHub :
    ```properties
    MAPS_API_KEY=VOTRE_CLE_API_GOOGLE_MAPS
    ```
-2. Le fichier `app/build.gradle.kts` extrait la variable `MAPS_API_KEY` pour l'injecter dynamiquement dans le manifest :
-   ```kotlin
-   val mapsApiKey = properties.getProperty("MAPS_API_KEY") ?: "YOUR_API_KEY_HERE"
-   manifestPlaceholders["MAPS_API_KEY"] = mapsApiKey
-   ```
+2. Le fichier `app/build.gradle.kts` extrait la variable `MAPS_API_KEY` pour l'injecter dynamiquement dans le manifest.
 3. Le fichier `AndroidManifest.xml` utilise la placeholder `${MAPS_API_KEY}`. Aucune clé réelle n'est présente dans le dépôt public.
 
 ---
 
-## 📞 Fonctionnalités V2 Conservées
+## 📞 Fonctionnalités Conservées de la V3
 
-- **Consultation & Édition** : Visualisation et modification des informations du contact avec actualisation immédiate de la liste.
-- **Appels téléphoniques (`Intent.ACTION_DIAL`)** : Ouverture du composeur avec le numéro prérempli.
-- **Envoi d'e-mails (`Intent.ACTION_SENDTO`)** : Ouverture de la messagerie avec l'adresse préremplie.
-- **Photos de profil (Galerie & Caméra)** : Choix depuis la galerie ou prise de vue directe via `FileProvider` avec sauvegarde interne permanente dans `filesDir`.
-- **Validation & Annulation** : Contrôle des champs obligatoires (Nom, Prénom, Téléphone) et gestion des annulations sans modification.
+- **Architecture à activité unique (`MainActivity`)** hébergeant des fragments dynamiques dans un `FragmentContainerView`.
+- **Recherche réactive** avec filtrage au fil de la saisie (`doOnTextChanged`).
+- **Appels téléphoniques (`Intent.ACTION_DIAL`)** sans permission requise.
+- **Envoi d'e-mails (`Intent.ACTION_SENDTO`)**.
+- **Gestion des photos** avec stockage interne permanent dans `filesDir`.
+- **Carte Google Maps (`CarteContactFragment`)** affichant le marqueur du contact selon ses coordonnées GPS.
 
 ---
 
@@ -61,32 +66,21 @@ Afin de respecter la règle de non-publication des clés privées sur GitHub :
 
 ```text
 com.example.contactlist/
-├── Contact.kt               # Modèle de données parcelable (avec latitude & longitude)
-├── ContactAdapter.kt        # Adaptateur RecyclerView avec ViewHolder
-├── ContactViewModel.kt      # ViewModel partagé (Scope Activity)
-├── ImageUtils.kt            # Utilitaire de gestion des photos (stockage interne & FileProvider)
-├── MainActivity.kt          # Activité principale unique (hôte de fragments)
-├── ListeContactsFragment.kt # Fragment de liste et recherche en temps réel
-├── DetailContactFragment.kt # Fragment d'édition, saisie GPS et actions
-└── CarteContactFragment.kt  # Fragment Google Maps avec marqueur interactif
+├── Contact.kt               # Modèle de données parcelable (id: Long)
+├── ContactAdapter.kt        # Adaptateur RecyclerView dynamique (tailles, couleurs, bouton appel)
+├── ContactViewModel.kt      # ViewModel partagé (gère les coroutines et les données SQLite)
+├── ImageUtils.kt            # Stockage interne des photos et FileProvider
+├── MainActivity.kt          # Activité unique hôte de fragments avec menu d'options
+├── ListeContactsFragment.kt # Fragment liste avec filtrage, FAB '+' et rafraîchissement des préférences
+├── DetailContactFragment.kt # Fragment d'édition/création, validation et confirmation de suppression
+├── CarteContactFragment.kt  # Fragment Google Maps avec marqueur interactif
+├── ParametresFragment.kt    # Écran de préférences (PreferenceFragmentCompat)
+└── data/
+    ├── ContactContract.kt   # Schéma de la table et constantes de colonnes
+    ├── ContactDbHelper.kt   # SQLiteOpenHelper singleton avec données de démo
+    ├── ContactDao.kt        # Accès exclusif aux requêtes SQL (CRUD & Search)
+    └── PreferencesManager.kt # Conversion et lecture centralisée des SharedPreferences
 ```
-
----
-
-## 💡 Questions de Compréhension (Section 11)
-
-1. **Quelle différence existe-t-il entre une Activity et un Fragment ?**
-   - Une **Activity** est un composant autonome d'application représentant un écran principal géré directement par le système Android. Un **Fragment** est une portion réutilisable et modulaire d'interface utilisateur hébergée au sein d'une Activity avec son propre sous-cycle de vie.
-2. **Pourquoi utiliser `FragmentContainerView` et `addToBackStack()` ?**
-   - `FragmentContainerView` est le conteneur officiel AndroidX assurant une gestion optimale des transactions, des animations et de la restauration d'état des fragments. `addToBackStack()` enregistre la transaction dans la pile d'historique pour permettre un retour arrière fluide via le bouton Retour.
-3. **Quel est le rôle de `RecyclerView.Adapter` et de `ViewHolder` ?**
-   - `RecyclerView.Adapter` fait la liaison entre la liste de données et l'affichage. Le `ViewHolder` garde en cache les références des vues d'un item pour réutiliser les composants visuels lors du défilement et améliorer la fluidité.
-4. **Comment éviter une erreur d’indice après filtrage ?**
-   - En identifiant chaque contact par son **ID unique (`id: String`)** au lieu d'utiliser l'index de la liste filtrée.
-5. **Pourquoi transmettre l’identifiant d’un contact plutôt que la position de sa ligne ?**
-   - La position d'un item change lors de la recherche ou du tri. Transmettre un identifiant immuable garantit que l'on manipule le bon objet dans le ViewModel quelle que soit la vue active.
-6. **Comment garantir qu’une clé Google Maps ne soit pas exposée dans GitHub ?**
-   - En définissant la clé dans `local.properties` (exclu par `.gitignore`) et en l'injectant dans le `AndroidManifest.xml` via `manifestPlaceholders` dans `build.gradle.kts`.
 
 ---
 
@@ -98,6 +92,7 @@ com.example.contactlist/
 - **Bibliothèques principales** :
   - `androidx.appcompat`
   - `androidx.fragment:fragment-ktx`
+  - `androidx.preference:preference-ktx`
   - `androidx.activity:activity-ktx`
   - `com.google.android.material:material`
   - `com.google.android.gms:play-services-maps`
@@ -109,7 +104,7 @@ com.example.contactlist/
 
 1. Cloner ce dépôt GitHub :
    ```bash
-   git clone https://github.com/aziz-gr/ContactList-V3.git
+   git clone https://github.com/aziz-gr/ContactList-V4.git
    ```
 2. Créer un fichier `local.properties` à la racine du projet et ajouter votre clé Google Maps API :
    ```properties
